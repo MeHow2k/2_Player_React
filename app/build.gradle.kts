@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace = "pl.MeHow2k.a2playerreact"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "pl.MeHow2k.a2playerreact"
