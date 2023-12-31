@@ -1,5 +1,6 @@
 package pl.MeHow2k.a2playerreact;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
@@ -16,11 +17,13 @@ public class GameLoop extends View implements View.OnTouchListener {
     playButtonX=screenw/2-100,playButtonY=screenh*3/5,
     playButtonW=200,playButtonH=100;
     int roundspassed=0;
-    int delay=0;int white_col_start_delay=0;int white_col_timer=0;
+    int game_start_delay=0;int round_start_delay=0;int white_col_start_delay=0;int white_col_timer=0;
     boolean islevelcreated=false;
     boolean islevelended=true;
+    int roundNumber =0;
     boolean canMakePoint =false;
     boolean canClick =false;
+    String gameInfoText="";
     Paint paint;
     Canvas canvas;
     public GameLoop(Context context) {
@@ -32,6 +35,7 @@ public class GameLoop extends View implements View.OnTouchListener {
 
         new Thread(new Runnable() {
 
+            @SuppressLint("SuspiciousIndentation")
             @Override
             public void run() {
                 long lastTime = System.nanoTime();
@@ -46,34 +50,39 @@ public class GameLoop extends View implements View.OnTouchListener {
                     delta += (nowTime - lastTime) / ns;
                     lastTime = nowTime;
 
-                    if (C.GAMESTATE==1) {//ingame
+                    if (C.GAMESTATE==1 && !C.PAUSE) {//ingame
                         //sprawdzenie czy ktos wygrał
                         if(C.requiredWins==roundspassed) {
                             if (C.player1Wins > C.player2Wins) {
-                                Log.i("p1", "won");
+                                roundNumber=0;
                                 C.GAMESTATE = 111;
                             }else if (C.player1Wins < C.player2Wins) {
-                                Log.i("P2", "won");
+                                roundNumber=0;
                                 C.GAMESTATE = 222;
                             }else C.GAMESTATE = 333;//draw
                         }
+                        game_start_delay++;
+                        if(game_start_delay>2000){
                         //white color hit
-                        delay++;
-                        if(delay>=500){
+                        round_start_delay++;
+                        if(round_start_delay >=500){
                             canClick=true;
                             if(!islevelcreated){
                                 white_col_timer=0;
                                 Random random = new Random();
-                                white_col_start_delay=random.nextInt(8000)+2000;
+                                white_col_start_delay=random.nextInt(3500)+500;
                                 islevelcreated=true;
                             }
                             if(white_col_start_delay<0){
                                 canMakePoint=true;
+                                roundNumber++;
                                 white_col_timer++;
                             }else white_col_start_delay--;
 
                         }
-
+                        //white color hit
+                            //if 3 rounds done -> game_start_delay =0, next game
+                    }
 
                     }//gamestate 1
                         try {
@@ -115,15 +124,17 @@ public class GameLoop extends View implements View.OnTouchListener {
         }
         if(C.GAMESTATE==1){
             drawPlayerButtons(canvas);
-
-            if(delay<=0){drawGameInfo("Nacisnij kiedy pojawi sie bialy kolor",canvas);}
+            drawGameInfo(gameInfoText,canvas);
             if(white_col_start_delay<=0){
-            drawLevel_WhiteHit(canvas);
-            if(islevelended) drawGameInfo(String.valueOf(white_col_timer),canvas);
+            if(roundNumber!=0)drawLevel_WhiteHit(canvas);
+            if(islevelended && roundNumber!=0) drawGameInfo(String.valueOf(white_col_timer),canvas);
             }
             drawPlayerWinsInfo(canvas);
             drawPlayerLabel(canvas);
-
+            if(round_start_delay >=500){
+                gameInfoText="Nacisnij kiedy pojawi sie bialy kolor";
+            }
+            if(game_start_delay<3000){drawGameTitle("Reaction Test",canvas);}
         }
         //gdy wygral player1
         if(C.GAMESTATE==111){
@@ -133,7 +144,7 @@ public class GameLoop extends View implements View.OnTouchListener {
             drawPlayerLabel(canvas);
             drawPlayerWinsInfo(canvas);
             drawPlayerWonInfo(canvas);
-
+            gameInfoText="";
         }
         //gdy wygrał player2
         if(C.GAMESTATE==222){
@@ -143,6 +154,7 @@ public class GameLoop extends View implements View.OnTouchListener {
             drawPlayerLabel(canvas);
             drawPlayerWinsInfo(canvas);
             drawPlayerWonInfo(canvas);
+            gameInfoText="";
         }
         //gdy remis
         if(C.GAMESTATE==333){
@@ -152,7 +164,7 @@ public class GameLoop extends View implements View.OnTouchListener {
             drawPlayerLabel(canvas);
             drawPlayerWinsInfo(canvas);
             drawPlayerWonInfo(canvas);
-
+            gameInfoText="";
         }
     }
 
@@ -164,17 +176,22 @@ public class GameLoop extends View implements View.OnTouchListener {
         if(action == MotionEvent.ACTION_DOWN) {
             //play button collision
 
+            if(C.PAUSE)C.PAUSE=false;
             if(C.GAMESTATE==1) {
                 if(canClick) {
                     if (y > screenh / 3 * 2 && y > 0) {
                         if (canMakePoint) {
                             C.player1Wins++;
                             islevelended=true;
+                            gameInfoText="Gracz 1 zdobył punkt! Stuknij, aby przejść dalej.";
                             endLevel();
+                            C.PAUSE=true;
                         } else{
                             C.player1Wins--;
                             islevelended=true;
+                            gameInfoText="Gracz 2 zdobył punkt! Stuknij, aby przejść dalej.";
                             endLevel();
+                            C.PAUSE=true;
                         }
                     }
 
@@ -183,10 +200,12 @@ public class GameLoop extends View implements View.OnTouchListener {
                             C.player2Wins++;
                             islevelended=true;
                             endLevel();
+                            C.PAUSE=true;
                         } else{
                             C.player2Wins--;
                             islevelended=true;
                             endLevel();
+                            C.PAUSE=true;
                         }
                     }
                 }
@@ -263,13 +282,34 @@ public class GameLoop extends View implements View.OnTouchListener {
         paintText.setColor(Color.rgb(84,84,84));
         // P1
         paintText.setTextSize(80);
+        if(C.GAMESTATE==111) paintText.setColor(Color.GREEN);
+        if(C.GAMESTATE==222) paintText.setColor(Color.RED);
+        if(C.GAMESTATE==333) paintText.setColor(Color.YELLOW);
         canvas.drawText(String.valueOf(C.player1Wins),screenw-100,screenh/3*2-100,paintText);
         // P2 (obrocony)
         paintText.setTextSize(80);
+        if(C.GAMESTATE==111) paintText.setColor(Color.RED);
+        if(C.GAMESTATE==222) paintText.setColor(Color.GREEN);
+        if(C.GAMESTATE==333) paintText.setColor(Color.YELLOW);
         // obrocenie tekstu o 180 stopni z wpolrzednymi srodka obrotu x(prawy bok -75px)  y(srodek)
         canvas.save();
         canvas.rotate(180, screenw-75, screenh/2);
         canvas.drawText(String.valueOf(C.player2Wins),screenw-100,screenh/3*2-100,paintText);
+        canvas.restore();
+    }
+    protected void drawGameTitle(String text, Canvas canvas) {
+        // Rysowanie informacji nt zadania po dwoch stronach
+        Paint paintText = new Paint();
+        paintText.setColor(Color.WHITE);
+        // P1
+        paintText.setTextSize(80);
+        canvas.drawText(text, game_start_delay-400, screenh / 3 * 2 - 400, paintText);
+        // P2 (obrocony)
+        paintText.setTextSize(80);
+        // obrocenie tekstu o 180 stopni z wpolrzednymi srodka obrotu xy(srodek ekranu)
+        canvas.save();
+        canvas.rotate(180, screenw/2, screenh/2);
+        canvas.drawText(text, game_start_delay-400, screenh / 3 * 2 - 400, paintText);
         canvas.restore();
     }
     protected void drawPlayerLabel(Canvas canvas) {
@@ -296,7 +336,7 @@ public class GameLoop extends View implements View.OnTouchListener {
     protected void endLevel() {
         canMakePoint=false;
         islevelcreated=false;
-        delay=0;
+        round_start_delay =0;
         white_col_start_delay=0;
         canClick=false;
         roundspassed++;

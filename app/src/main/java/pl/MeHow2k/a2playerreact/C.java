@@ -7,4 +7,6 @@ public class C {
     public static int player1Wins=0;
     public static int player2Wins=0;
     public static int requiredWins=4;
+
+    public static boolean PAUSE=false;
 }
