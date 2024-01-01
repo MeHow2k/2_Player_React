@@ -196,8 +196,10 @@ public class GameLoop extends View implements View.OnTouchListener {
                     if (y < screenh / 3) {
                         if (canMakePoint) {
                             C.player2Wins++;
+                            gameInfoText="Gracz 2 zdobył punkt! Stuknij, aby przejść dalej.";
                         } else{
                             C.player2Wins--;
+                            gameInfoText="Gracz 1 zdobył punkt! Stuknij, aby przejść dalej.";
                         }
                         islevelended=true;
                         endLevel();
