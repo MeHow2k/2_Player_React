@@ -2,6 +2,7 @@ package pl.MeHow2k.a2playerreact;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 

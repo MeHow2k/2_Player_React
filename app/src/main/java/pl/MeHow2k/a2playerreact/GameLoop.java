@@ -15,6 +15,7 @@ import java.util.Random;
 public class GameLoop extends View implements View.OnTouchListener {
     int screenw=getScreenWidth(),screenh=getScreenHeight(),
     playButtonX=screenw/2-100,playButtonY=screenh*3/5,
+            quitButtonX=screenw/2-100,quitButtonY=screenh*3/4,
     playButtonW=200,playButtonH=100;
     int roundspassed=0;
     int game_start_delay=0;int round_start_delay=0;int white_col_start_delay=0;int white_col_timer=0;
@@ -120,7 +121,7 @@ public class GameLoop extends View implements View.OnTouchListener {
         //canvas.drawRect(playButtonX,playButtonY,playButtonX+playButtonW,playButtonY-playButtonH,paint);
         canvas.drawText("Play",playButtonX,playButtonY,paint);
 
-        canvas.drawText("Quit",screenw/2-100,screenh*3/4,paint);
+        canvas.drawText("Quit",quitButtonX,quitButtonY,paint);
         }
         if(C.GAMESTATE==1){
             drawPlayerButtons(canvas);
@@ -210,8 +211,10 @@ public class GameLoop extends View implements View.OnTouchListener {
             //menu
             if(C.GAMESTATE==0) {
                 if (x > playButtonX && x < playButtonX + playButtonW && y > playButtonY - playButtonH && y < playButtonY) {
-                    Log.i("Play button", "clicked");
                     C.GAMESTATE=1;
+                }
+                if (x > quitButtonX && x < quitButtonX + playButtonW && y > quitButtonY - playButtonH && y < quitButtonY) {
+                    System.exit(0);
                 }
             }
             //end game/summary
