@@ -6,13 +6,17 @@ import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Build;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+
 import java.util.Random;
 
 public class GameLoop extends View implements View.OnTouchListener {
+    String[] colorsNames={"CZERWONY","NIEBIESKI","ŻÓŁTY","ZIELONY","SZARY", "BIAŁY" };
+    int[] colorsInts={Color.RED,Color.BLUE,Color.YELLOW,Color.GREEN,Color.GRAY,Color.WHITE};
     int screenw=getScreenWidth(),screenh=getScreenHeight(),
     playButtonX=screenw/2-100,playButtonY=screenh*3/5,
             quitButtonX=screenw/2-100,quitButtonY=screenh*3/4,
@@ -20,21 +24,24 @@ public class GameLoop extends View implements View.OnTouchListener {
     int roundspassed=0;
     int game_start_delay=0;int round_start_delay=0;int white_col_start_delay=0;int white_col_timer=0;
     boolean islevelcreated=false;
-    boolean islevelended=true;
+    boolean islevelended;
     int roundNumber =0;
+    int colorMatch_currentColor=0,colorMatch_currentColorName=0;
     boolean canMakePoint =false;
     boolean canClick =false;
+    boolean nextLevelRequest=false;
     String gameInfoText="";
     Paint paint;
+    Random randomGlobal;
     Canvas canvas;
     public GameLoop(Context context) {
         super(context);
-
+        randomGlobal = new Random();
         setOnTouchListener(this);
         this.setBackgroundColor(Color.BLACK);
 
 
-        new Thread(new Runnable() {
+        Thread gameThread =new Thread(new Runnable() {
 
             @SuppressLint("SuspiciousIndentation")
             @Override
@@ -62,27 +69,70 @@ public class GameLoop extends View implements View.OnTouchListener {
                                 C.GAMESTATE = 222;
                             }else C.GAMESTATE = 333;//draw
                         }
+                        //zmiana gry
+                        if(nextLevelRequest) {
+                            game_start_delay=0;
+                            roundNumber=0;
+                            gameInfoText="";
+                            //C.currentGame=randomGlobal.nextInt(1)+1;
+                            C.currentGame++;
+                            if(C.currentGame==3) C.currentGame=1;
+                            nextLevelRequest=false;
+                        }
+
                         game_start_delay++;
                         if(game_start_delay>2000){
                         //white color hit
-                        round_start_delay++;
-                        if(round_start_delay >=500){
-                            canClick=true;
-                            if(!islevelcreated){
-                                white_col_timer=0;
-                                Random random = new Random();
-                                white_col_start_delay=random.nextInt(3500)+500;
-                                islevelcreated=true;
-                            }
-                            if(white_col_start_delay<0){
-                                canMakePoint=true;
-                                roundNumber++;
-                                white_col_timer++;
-                            }else white_col_start_delay--;
+                            if(C.currentGame==1){
+                                round_start_delay++;
+                                if(round_start_delay >=500){
+                                    canClick=true;
+                                    if(!islevelcreated){
+                                        white_col_timer=0;
+                                        Random random = new Random();
+                                        white_col_start_delay=random.nextInt(3500)+500;
+                                        islevelcreated=true;
+                                    }
+                                    if(white_col_start_delay<0){
+                                        canMakePoint=true;
+                                        roundNumber++;
+                                        white_col_timer++;
+                                    }else white_col_start_delay--;
+                                }
+                            }//white color hit
 
-                        }
-                        //white color hit
-                            //if 3 rounds done -> game_start_delay =0, next game
+                            if(C.currentGame==2){
+                                round_start_delay++;
+                                if(round_start_delay >=500){
+                                    canClick=true;
+                                    if(!islevelcreated){
+                                        white_col_timer=0;
+                                        //losowanie koloru i nazwy
+                                        Random random = new Random();
+                                        if(random.nextInt(100)>20){
+                                        colorMatch_currentColor=random.nextInt(colorsInts.length);
+                                        colorMatch_currentColorName = random.nextInt(colorsNames.length);
+                                        }
+                                        else{
+                                            colorMatch_currentColor=random.nextInt(colorsInts.length);
+                                            colorMatch_currentColorName=colorMatch_currentColor;
+                                        }
+                                        islevelcreated=true;
+                                    }
+                                    //gdzy pasuja do siebie gracz moze zdobyc pkt
+                                    if(colorMatch_currentColorName==colorMatch_currentColor)canMakePoint=true;
+                                    if(white_col_timer>1600) {//co jakis czas nowe zestawienie
+                                        islevelcreated=false;
+                                        white_col_timer=0;
+                                    }
+                                    if(white_col_start_delay<0){
+                                        roundNumber++;
+                                        white_col_timer++;
+                                    }else white_col_start_delay--;
+                                }
+                            }//color match
+
+
                     }
 
                     }//gamestate 1
@@ -104,8 +154,8 @@ public class GameLoop extends View implements View.OnTouchListener {
                     }
                 }
             }
-        }).start();
-
+        });
+    gameThread.start();
     }
 
     @Override
@@ -126,16 +176,37 @@ public class GameLoop extends View implements View.OnTouchListener {
         if(C.GAMESTATE==1){
             drawPlayerButtons(canvas);
             drawGameInfo(gameInfoText,canvas);
-            if(white_col_start_delay<=0){
-            if(roundNumber!=0)drawLevel_WhiteHit(canvas);
-            if(islevelended && roundNumber!=0) drawGameInfo(String.valueOf(white_col_timer),canvas);
+            if(C.currentGame==1) {
+                if (white_col_start_delay <= 0) {
+                    if (roundNumber != 0) drawLevel_WhiteHit(canvas);
+                    if (islevelended && roundNumber != 0)
+                        drawGameInfo(String.valueOf(white_col_timer), canvas);
+                }
+
+                if (round_start_delay >= 500) {
+                    gameInfoText = "Nacisnij kiedy pojawi sie bialy kolor";
+                }
+                if (game_start_delay < 3000) {
+                    drawGameTitle("Reaction Test", canvas);
+                }
+            }
+
+            if(C.currentGame==2) {
+                if (white_col_start_delay <= 0) {
+                    if (roundNumber != 0)
+                        drawLevel_ColorMatch(colorsNames[colorMatch_currentColorName],colorsInts[colorMatch_currentColor],canvas);
+                    if (islevelended && roundNumber != 0)
+                        drawGameInfo(String.valueOf(white_col_timer), canvas);
+                }
+                if (round_start_delay >= 500) {
+                    gameInfoText = "Nacisnij kiedy słowo ma poprawny kolor";
+                }
+                if (game_start_delay < 3000) {
+                    drawGameTitle("Match color", canvas);
+                }
             }
             drawPlayerWinsInfo(canvas);
             drawPlayerLabel(canvas);
-            if(round_start_delay >=500){
-                gameInfoText="Nacisnij kiedy pojawi sie bialy kolor";
-            }
-            if(game_start_delay<3000){drawGameTitle("Reaction Test",canvas);}
         }
         //gdy wygral player1
         if(C.GAMESTATE==111){
@@ -177,36 +248,44 @@ public class GameLoop extends View implements View.OnTouchListener {
         if(action == MotionEvent.ACTION_DOWN) {
             //play button collision
 
-            if(C.PAUSE)C.PAUSE=false;
+            if(C.PAUSE) {
+                C.PAUSE=false;
+
+                //do poprawy w ondraw()? zrobione bo tekst znika po kliknieciu i zdobyciu pkt todo
+                if(C.currentGame==1) gameInfoText = "Naciśnij kiedy pojawi się bialy kolor";
+                if(C.currentGame==2) gameInfoText = "Naciśnij kiedy słowo ma poprawny kolor";
+                else gameInfoText = "";
+            }
             if(C.GAMESTATE==1) {
-                if(canClick) {
-                    if (y > screenh / 3 * 2 && y > 0) {
-                        if (canMakePoint) {
-                            C.player1Wins++;
-                            islevelended=true;
-                            gameInfoText="Gracz 1 zdobył punkt! Stuknij, aby przejść dalej.";
-                        } else{
-                            C.player1Wins--;
-                            islevelended=true;
-                            gameInfoText="Gracz 2 zdobył punkt! Stuknij, aby przejść dalej.";
+                    if (canClick) {
+                        if (y > screenh / 3 * 2 && y > 0) {
+                            if (canMakePoint) {
+                                C.player1Wins++;
+                                islevelended = true;
+                                gameInfoText = "Gracz 1 zdobył punkt! Stuknij, aby przejść dalej.";
+                            } else {
+                                C.player1Wins--;
+                                islevelended = true;
+                                gameInfoText = "Gracz 2 zdobył punkt! Stuknij, aby przejść dalej.";
+                            }
+                            endLevel();
+                            C.PAUSE = true;
                         }
-                        endLevel();
-                        C.PAUSE=true;
+
+                        if (y < screenh / 3) {
+                            if (canMakePoint) {
+                                C.player2Wins++;
+                                gameInfoText = "Gracz 2 zdobył punkt! Stuknij, aby przejść dalej.";
+                            } else {
+                                C.player2Wins--;
+                                gameInfoText = "Gracz 1 zdobył punkt! Stuknij, aby przejść dalej.";
+                            }
+                            islevelended = true;
+                            endLevel();
+                            C.PAUSE = true;
+                        }
                     }
 
-                    if (y < screenh / 3) {
-                        if (canMakePoint) {
-                            C.player2Wins++;
-                            gameInfoText="Gracz 2 zdobył punkt! Stuknij, aby przejść dalej.";
-                        } else{
-                            C.player2Wins--;
-                            gameInfoText="Gracz 1 zdobył punkt! Stuknij, aby przejść dalej.";
-                        }
-                        islevelended=true;
-                        endLevel();
-                        C.PAUSE=true;
-                    }
-                }
             }
             //menu
             if(C.GAMESTATE==0) {
@@ -219,7 +298,7 @@ public class GameLoop extends View implements View.OnTouchListener {
             }
             //end game/summary
             if(C.GAMESTATE==111 || C.GAMESTATE==222|| C.GAMESTATE==333) {
-                    C.GAMESTATE=0;C.player1Wins=0;C.player2Wins=0;roundspassed=0;
+                    C.GAMESTATE=0;C.player1Wins=0;C.player2Wins=0; resetVariables();
                 }
             }
 
@@ -333,6 +412,21 @@ public class GameLoop extends View implements View.OnTouchListener {
         white.setColor(Color.WHITE);
         canvas.drawRect(0,screenh/3,screenw,screenh/3*2,white);
     }
+    protected void drawLevel_ColorMatch(String colorName,int colorInt,Canvas canvas) {
+        Paint paintText = new Paint();
+        paintText.setColor(colorInt);
+        // P1
+        paintText.setTextSize(80);
+        canvas.drawText(colorName,screenw/2-120,screenh/2-50,paintText);
+        // P2 (obrocony)
+        paintText.setTextSize(80);
+        // obrocenie tekstu o 180 stopni z wpolrzednymi srodka obrotu xy(srodek ekranu)
+        canvas.save();
+        canvas.rotate(180, screenw/2, screenh/2);
+        canvas.drawText(colorName,screenw/2-120,screenh/2-50,paintText);
+        canvas.restore();
+    }
+
     protected void endLevel() {
         canMakePoint=false;
         islevelcreated=false;
@@ -341,6 +435,27 @@ public class GameLoop extends View implements View.OnTouchListener {
         canClick=false;
         roundspassed++;
         white_col_timer=0;
+
+
+        //zmiana gry co 3 rundy
+        if(roundspassed % 3 == 0) {
+            nextLevelRequest=true;
+        }
+    }
+    protected void resetVariables() {
+        roundspassed=0;
+        game_start_delay=0;
+        round_start_delay=0;
+        white_col_start_delay=0;
+        white_col_timer=0;
+        islevelcreated=false;
+        roundNumber =0;
+        colorMatch_currentColor=0;
+        colorMatch_currentColorName=0;
+        canMakePoint =false;
+        canClick =false;
+        nextLevelRequest=false;
+        gameInfoText="";
     }
 
     @Override
