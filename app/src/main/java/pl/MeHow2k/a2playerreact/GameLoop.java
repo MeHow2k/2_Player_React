@@ -382,13 +382,13 @@ public class GameLoop extends View implements View.OnTouchListener {
         paintText.setColor(Color.WHITE);
         // P1
         paintText.setTextSize(80);
-        canvas.drawText(text, game_start_delay-400, screenh / 3 * 2 - 400, paintText);
+        canvas.drawText(text, game_start_delay-400, screenh / 3 * 2 - 250, paintText);
         // P2 (obrocony)
         paintText.setTextSize(80);
         // obrocenie tekstu o 180 stopni z wpolrzednymi srodka obrotu xy(srodek ekranu)
         canvas.save();
         canvas.rotate(180, screenw/2, screenh/2);
-        canvas.drawText(text, game_start_delay-400, screenh / 3 * 2 - 400, paintText);
+        canvas.drawText(text, game_start_delay-400, screenh / 3 * 2 - 250, paintText);
         canvas.restore();
     }
     protected void drawPlayerLabel(Canvas canvas) {
