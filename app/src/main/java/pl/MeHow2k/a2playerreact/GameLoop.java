@@ -212,8 +212,9 @@ public class GameLoop extends View implements View.OnTouchListener {
             if(C.currentGame==1) {
                 if (white_col_start_delay <= 0) {
                     if (roundNumber != 0) drawLevel_WhiteHit(canvas);
-                    if (islevelended && roundNumber != 0)
-                        drawGameInfo(String.valueOf(white_col_timer), canvas);
+                    //int-timer test
+                    //if (islevelended && roundNumber != 0)
+                        //drawGameInfo(String.valueOf(white_col_timer), canvas);
                 }
 
                 if (round_start_delay >= 500) {
