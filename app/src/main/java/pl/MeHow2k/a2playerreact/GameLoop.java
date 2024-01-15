@@ -180,8 +180,6 @@ public class GameLoop extends View implements View.OnTouchListener {
                     }
                     if (System.currentTimeMillis() - timer > 1000) { //co 1 s sprawdza liczbe narysowanych klatek
                         timer += 1000;
-                        //wypisywanie liczby klatek na sekundę w etykiecie
-                        Log.i("FPS metrer", String.valueOf(frames));
                         frames = 0;
                     }
                 }
