@@ -229,8 +229,9 @@ public class GameLoop extends View implements View.OnTouchListener {
                 if (white_col_start_delay <= 0) {
                     if (roundNumber != 0)
                         drawLevel_ColorMatch(C.colorsNames[colorMatch_currentColorName],C.colorsInts[colorMatch_currentColor],canvas);
-                    if (islevelended && roundNumber != 0)
-                        drawGameInfo(String.valueOf(white_col_timer), canvas);
+                    //int timer test
+                    //                    if (islevelended && roundNumber != 0)
+                      //  drawGameInfo(String.valueOf(white_col_timer), canvas);
                 }
                 if (round_start_delay >= 500) {
                     gameInfoText = "Nacisnij kiedy słowo ma poprawny kolor";
@@ -243,8 +244,9 @@ public class GameLoop extends View implements View.OnTouchListener {
                 if (white_col_start_delay <= 0) {
                     if (roundNumber != 0)
                         drawLevel_CountriesCities(C.countries[countriesCities_currentCountry],C.cities[countriesCities_currentCity],canvas);
-                    if (islevelended && roundNumber != 0)
-                        drawGameInfo(String.valueOf(white_col_timer), canvas);
+                    //int timer test
+                    //                    if (islevelended && roundNumber != 0)
+//                        drawGameInfo(String.valueOf(white_col_timer), canvas);
                 }
                 if (round_start_delay >= 500) {
                     gameInfoText = "Nacisnij kiedy kraj i stolica pasują do siebie";
