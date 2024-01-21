@@ -89,9 +89,10 @@ public class MenuActivity extends AppCompatActivity {
 
 /*do zrobienia
 
+wycentrowanie stringów
+implementacja pauzy
+lokalizacja????
+timer dla gry Biały Kolor
 
-popraw napis z info jak grac
-mozliwe ze czasem za zle odpowiedzi sie dostaje pkt
-timery zamiast delay na int'ach
 
 */
