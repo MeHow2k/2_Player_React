@@ -297,7 +297,6 @@ public class GameLoop extends View implements View.OnTouchListener {
             if(isPausedAfterPoint) {
                 isPausedAfterPoint =false;
                 isPlayer1scored=false;isPlayer2scored=false;
-                //do poprawy w ondraw()? zrobione bo tekst znika po kliknieciu i zdobyciu pkt todo
                 if(C.currentGame==1) gameInfoText = "Naciśnij kiedy pojawi się bialy kolor";
                 else if(C.currentGame==2) gameInfoText = "Naciśnij kiedy słowo ma poprawny kolor";
                 else if(C.currentGame==3) gameInfoText = "Naciśnij kiedy kraj i stolica pasuja do siebie";
