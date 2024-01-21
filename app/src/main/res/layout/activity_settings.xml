@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:text="Settings"
         android:gravity="center"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="50dp"
         android:textSize="40sp"
         android:textColor="@color/white"
         android:textStyle="bold" />
@@ -22,29 +22,105 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="vertical"
-        android:layout_marginTop="250dp">
-<TextView
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center"
-    android:textSize="30sp"
-    android:text="Not implemented yet."
-    ></TextView>
+        android:layout_marginTop="50dp">
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
+            android:textColor="@color/white"
+            android:text="Wyłącz gry"
+
+            android:textSize="30sp"></TextView>
+
+        <Switch
+            android:id="@+id/switchGame1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:background="@color/cardview_dark_background"
+            android:checked="true"
+            android:text="Biały kolor"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="30dp"
+            />
+
+
+        <Switch
+            android:id="@+id/switchGame2"
+            android:background="@color/cardview_dark_background"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Dopasuj kolor"
+            android:textColor="@color/white"
+            android:textAlignment="center"
+            android:textSize="30dp"
+            android:checked="true"
+            />
+        <Switch
+            android:id="@+id/switchGame3"
+            android:background="@color/cardview_dark_background"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Państwa Miasta"
+            android:textColor="@color/white"
+            android:textAlignment="center"
+            android:textSize="30dp"
+            android:checked="true"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:layout_marginTop="25dp"
+            android:gravity="center"
             android:textSize="30sp"
-            android:text="Tap back to return to menu."
+            android:text="Liczba rund do wygranej:"
             ></TextView>
+
+       <TextView
+           android:id="@+id/textWins"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:text=""
+           android:textColor="@color/white"
+           android:textSize="40dp"
+           android:textAlignment="center"
+           ></TextView>
+
+        <SeekBar
+            android:id="@+id/seekBar1"
+            android:layout_marginTop="20dp"
+            android:layout_width="150dp"
+            android:scaleX="2"
+            android:scaleY="2"
+            android:layout_height="wrap_content"
+            android:max="20"
+            android:min="2"
+            android:indeterminate="false"
+            android:progress="0" />
+        <Button
+            android:id="@+id/buttonSave"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:gravity="center"
+            android:text="ZAPISZ I WYJDŹ"
+            android:textColor="@color/white"
+            android:textSize="30sp"></Button>
         <Button
             android:id="@+id/buttonBACK"
             style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
+            android:layout_marginTop="20dp"
             android:gravity="center"
-            android:text="BACK"
+            android:text="WRÓĆ"
             android:textColor="@color/white"
             android:textSize="30sp"></Button>
     </LinearLayout>

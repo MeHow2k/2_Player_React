@@ -21,28 +21,31 @@ public class GameLoop extends View implements View.OnTouchListener {
             quitButtonX=screenw/2-100,quitButtonY=screenh*3/4,
     playButtonW=200,playButtonH=100;
     int roundspassed=0;
-    int game_start_delay=0;int round_start_delay=0;int white_col_start_delay=0;int white_col_timer=0;
+    int game_start_delay=0;int round_start_delay=0;int white_col_start_delay=1;int white_col_timer=0;
+    int GAME_START_DELAY_VALUE=400,ROUND_START_DELAY_VALUE=180,ROUND_NEXT_QUESTION_DELAY_VALUE=180;
     boolean islevelcreated=false;
     boolean islevelended;
     boolean isPlayer1scored=false,isPlayer2scored=false;
-    int roundNumber =0;
+    boolean isFirstRound =true/*nieuzywanie*/, isPausedAfterPoint=false;
     int colorMatch_currentColor=0,colorMatch_currentColorName=0;
     int countriesCities_currentCountry =0, countriesCities_currentCity =0;
+    int animationFrame=0;
     boolean canMakePoint =false;
     boolean canClick =false;
-    boolean nextLevelRequest=false;
+    boolean nextLevelRequest=true;
+    boolean breakThread=false;
     String gameInfoText="";
     Paint paint;
     Random randomGlobal;
     Canvas canvas;
+    Thread gameThread;
     public GameLoop(Context context) {
         super(context);
         randomGlobal = new Random();
         setOnTouchListener(this);
         this.setBackgroundColor(Color.BLACK);
 
-
-        Thread gameThread =new Thread(new Runnable() {
+        gameThread =new Thread(new Runnable() {
 
             @SuppressLint("SuspiciousIndentation")
             @Override
@@ -55,117 +58,106 @@ public class GameLoop extends View implements View.OnTouchListener {
                 long timer = System.currentTimeMillis();
 
                 while (true){
+
                     long nowTime = System.nanoTime();
                     delta += (nowTime - lastTime) / ns;
                     lastTime = nowTime;
 
-                    if (C.GAMESTATE==1 && !C.PAUSE) {//ingame
+                    if (C.GAMESTATE==1 && (!isPausedAfterPoint) ) {//ingame
                         //sprawdzenie czy ktos wygrał
-                        if(C.requiredWins==roundspassed) {
+                        if(C.requiredRounds ==roundspassed) {
                             if (C.player1Wins > C.player2Wins) {
-                                roundNumber=0;
+                                isFirstRound =true;
                                 C.GAMESTATE = 111;
                             }else if (C.player1Wins < C.player2Wins) {
-                                roundNumber=0;
+                                isFirstRound =true;
                                 C.GAMESTATE = 222;
                             }else C.GAMESTATE = 333;//draw
                         }
                         //zmiana gry
                         if(nextLevelRequest) {
+                            animationFrame=0;
                             game_start_delay=0;
-                            roundNumber=0;
+                            isFirstRound =true;
                             gameInfoText="";
-                            //C.currentGame=randomGlobal.nextInt(1)+1;
                             C.currentGame++;
                             if(C.currentGame==4) C.currentGame=1;
-                            nextLevelRequest=false;
+                            if(C.currentGame==1 && !C.isGame1On || C.currentGame==2 && !C.isGame2On
+                                    || C.currentGame==3 && !C.isGame3On) nextLevelRequest=true;
+                                else nextLevelRequest=false;
                         }
-
-                        game_start_delay++;
-                        if(game_start_delay>2000){
-                        //white color hit
-                            if(C.currentGame==1){
-                                round_start_delay++;
-                                if(round_start_delay >=500){
-                                    canClick=true;
-                                    if(!islevelcreated){
-                                        white_col_timer=0;
-                                        Random random = new Random();
-                                        white_col_start_delay=random.nextInt(3500)+500;
-                                        islevelcreated=true;
-                                    }
-                                    if(white_col_start_delay<0){
-                                        canMakePoint=true;
-                                        roundNumber++;
-                                        white_col_timer++;
-                                    }else white_col_start_delay--;
-                                }
-                            }//white color hit
-
-                            if(C.currentGame==2){
-                                round_start_delay++;
-                                if(round_start_delay >=500){
-                                    canClick=true;
-                                    if(!islevelcreated){
-                                        white_col_timer=0;
-                                        //losowanie koloru i nazwy
-                                        Random random = new Random();
-                                        if(random.nextInt(100)>20){
-                                        colorMatch_currentColor=random.nextInt(C.colorsInts.length);
-                                        colorMatch_currentColorName = random.nextInt(C.colorsNames.length);
+                            if (game_start_delay > GAME_START_DELAY_VALUE) {
+                                //white color hit
+                                if (C.currentGame == 1) {
+                                    if (round_start_delay >= ROUND_START_DELAY_VALUE) {
+                                        canClick = true;
+                                        if (!islevelcreated) {
+                                            white_col_timer = 0;
+                                            Random random = new Random();
+                                            white_col_start_delay = random.nextInt(350) + 50;
+                                            islevelcreated = true;
                                         }
-                                        else{
-                                            colorMatch_currentColor=random.nextInt(C.colorsInts.length);
-                                            colorMatch_currentColorName=colorMatch_currentColor;
+                                        if (white_col_start_delay < 0) {
+                                            canMakePoint = true;
+                                            white_col_timer++;
                                         }
-                                        islevelcreated=true;
                                     }
-                                    //gdzy pasuja do siebie gracz moze zdobyc pkt
-                                    if(colorMatch_currentColorName==colorMatch_currentColor) canMakePoint=true;
-                                    if(white_col_timer>1600) {//co jakis czas nowe zestawienie
-                                        islevelcreated=false;
-                                        white_col_timer=0;
-                                    }
-                                    if(white_col_start_delay<0){
-                                        roundNumber++;
-                                        white_col_timer++;
-                                    }else white_col_start_delay--;
-                                }
-                            }//color match
+                                }//white color hit
 
-                            if(C.currentGame==3){
-                                round_start_delay++;
-                                if(round_start_delay >=500){
-                                    canClick=true;
-                                    if(!islevelcreated){
-                                        white_col_timer=0;
-                                        //losowanie panstwa i miasta
-                                        Random random = new Random();
-                                        if(random.nextInt(100)>20){
-                                            countriesCities_currentCountry=random.nextInt(C.countries.length);
-                                            countriesCities_currentCity = random.nextInt(C.cities.length);
+                                if (C.currentGame == 2) {
+                                    if (round_start_delay >= ROUND_START_DELAY_VALUE) {
+                                        canClick = true;
+                                        if (!islevelcreated) {
+                                            white_col_timer = 0;
+                                            //losowanie koloru i nazwy
+                                            Random random = new Random();
+                                            if (random.nextInt(100) > 20) {
+                                                colorMatch_currentColor = random.nextInt(C.colorsInts.length);
+                                                colorMatch_currentColorName = random.nextInt(C.colorsNames.length);
+                                            } else {
+                                                colorMatch_currentColor = random.nextInt(C.colorsInts.length);
+                                                colorMatch_currentColorName = colorMatch_currentColor;
+                                            }
+                                            islevelcreated = true;
                                         }
-                                        else{
-                                            countriesCities_currentCountry=random.nextInt(C.countries.length);
-                                            countriesCities_currentCity=countriesCities_currentCountry;
+                                        //gdy pasuja do siebie gracz moze zdobyc pkt
+                                        if (colorMatch_currentColorName == colorMatch_currentColor)
+                                            canMakePoint = true;
+                                        if (white_col_timer > ROUND_NEXT_QUESTION_DELAY_VALUE) {//co jakis czas nowe zestawienie
+                                            islevelcreated = false;
+                                            canMakePoint = false;
+                                            white_col_timer = 0;
                                         }
-                                        islevelcreated=true;
                                     }
-                                    //gdzy pasuja do siebie gracz moze zdobyc pkt
-                                    if(countriesCities_currentCountry==countriesCities_currentCity) canMakePoint=true;
-                                    if(white_col_timer>1600) {//co jakis czas nowe zestawienie
-                                        islevelcreated=false;
-                                        white_col_timer=0;
+                                }//color match
+
+                                if (C.currentGame == 3) {
+                                    if (round_start_delay >= ROUND_START_DELAY_VALUE) {
+                                        canClick = true;
+                                        if (!islevelcreated) {
+                                            white_col_timer = 0;
+                                            //losowanie panstwa i miasta
+                                            Random random = new Random();
+                                            if (random.nextInt(100) > 20) {
+                                                countriesCities_currentCountry = random.nextInt(C.countries.length);
+                                                countriesCities_currentCity = random.nextInt(C.cities.length);
+                                            } else {
+                                                countriesCities_currentCountry = random.nextInt(C.countries.length);
+                                                countriesCities_currentCity = countriesCities_currentCountry;
+                                            }
+                                            islevelcreated = true;
+                                        }
+                                        //gdzy pasuja do siebie gracz moze zdobyc pkt
+                                        if (countriesCities_currentCountry == countriesCities_currentCity)
+                                            canMakePoint = true;
+                                        if (white_col_timer > ROUND_NEXT_QUESTION_DELAY_VALUE) {//co jakis czas nowe zestawienie
+                                            islevelcreated = false;
+                                            canMakePoint = false;
+                                            white_col_timer = 0;
+                                        }
                                     }
-                                    if(white_col_start_delay<0){
-                                        roundNumber++;
-                                        white_col_timer++;
-                                    }else white_col_start_delay--;
-                                }
-                            }//panstwa miasta
-
-
-                    }
+                                }//panstwa miasta
+                            }
 
                     }//gamestate 1
                         try {
@@ -177,6 +169,16 @@ public class GameLoop extends View implements View.OnTouchListener {
                         invalidate();
                         delta--;
                         frames++;
+                        Log.i("",""+ white_col_start_delay+" pause:"+ C.PAUSE);
+                        if(!isPausedAfterPoint || C.PAUSE){
+                            round_start_delay++;
+                            game_start_delay++;
+                            animationFrame++;
+
+                            if(white_col_start_delay<0){
+                                white_col_timer++;
+                            }else white_col_start_delay--;
+                        }
                     }
                     if (System.currentTimeMillis() - timer > 1000) { //co 1 s sprawdza liczbe narysowanych klatek
                         timer += 1000;
@@ -194,68 +196,62 @@ public class GameLoop extends View implements View.OnTouchListener {
         paint = new Paint();
         paint.setColor(Color.WHITE);
         paint.setTextSize(100);
-        //canvas.drawText(String.valueOf(roundspassed),playButtonX,playButtonY,paint);//testowo wypisz ile rund bylo
 
-//        if(C.GAMESTATE==0){
-//        canvas.drawText("2 Player React",screenw/2-300,screenh/6,paint);
-//        //canvas.drawText("Play",screenw/2-100,screenh*3/5,paint);
-//        //canvas.drawRect(playButtonX,playButtonY,playButtonX+playButtonW,playButtonY-playButtonH,paint);
-//        canvas.drawText("Play",playButtonX,playButtonY,paint);
-//
-//        canvas.drawText("Quit",quitButtonX,quitButtonY,paint);
-//        }
         if(C.GAMESTATE==1){
             drawPlayerButtons(canvas);
             drawGameInfo(gameInfoText,canvas);
             if(C.currentGame==1) {
                 if (white_col_start_delay <= 0) {
-                    if (roundNumber != 0) drawLevel_WhiteHit(canvas);
+
+                        if(canClick|| isPausedAfterPoint)drawLevel_WhiteHit(canvas);
                     //int-timer test
                     //if (islevelended && roundNumber != 0)
                         //drawGameInfo(String.valueOf(white_col_timer), canvas);
                 }
 
-                if (round_start_delay >= 500) {
+                if (round_start_delay >= 120) {
                     gameInfoText = "Nacisnij kiedy pojawi sie bialy kolor";
                 }
-                if (game_start_delay < 3000) {
+                if (game_start_delay < 180) {
                     drawGameTitle("Biały kolor", canvas);
                 }
             }
 
             if(C.currentGame==2) {
                 if (white_col_start_delay <= 0) {
-                    if (roundNumber != 0)
+                    if (canClick || isPausedAfterPoint)
                         drawLevel_ColorMatch(C.colorsNames[colorMatch_currentColorName],C.colorsInts[colorMatch_currentColor],canvas);
                     //int timer test
                     //                    if (islevelended && roundNumber != 0)
                       //  drawGameInfo(String.valueOf(white_col_timer), canvas);
                 }
-                if (round_start_delay >= 500) {
+                if (round_start_delay >= 120) {
                     gameInfoText = "Nacisnij kiedy słowo ma poprawny kolor";
                 }
-                if (game_start_delay < 3000) {
+                if (game_start_delay < 180) {
                     drawGameTitle("Dopasuj kolor", canvas);
+                    if (game_start_delay>179) isFirstRound=false;
                 }
             }
             if(C.currentGame==3) {
                 if (white_col_start_delay <= 0) {
-                    if (roundNumber != 0)
+                    if (canClick || isPausedAfterPoint)
                         drawLevel_CountriesCities(C.countries[countriesCities_currentCountry],C.cities[countriesCities_currentCity],canvas);
                     //int timer test
                     //                    if (islevelended && roundNumber != 0)
 //                        drawGameInfo(String.valueOf(white_col_timer), canvas);
                 }
-                if (round_start_delay >= 500) {
+                if (round_start_delay >= 120) {
                     gameInfoText = "Nacisnij kiedy kraj i stolica pasują do siebie";
                 }
-                if (game_start_delay < 3000) {
+                if (game_start_delay < 180) {
                     drawGameTitle("Państwa Miasta", canvas);
                 }
             }
 
             drawPlayerWinsInfo(canvas);
             drawPlayerLabel(canvas);
+            if(C.PAUSE) drawPauseLabel(canvas);
         }
         //gdy wygral player1
         if(C.GAMESTATE==111){
@@ -297,13 +293,14 @@ public class GameLoop extends View implements View.OnTouchListener {
         if(action == MotionEvent.ACTION_DOWN) {
             //play button collision
 
-            if(C.PAUSE) {
-                C.PAUSE=false;
+
+            if(isPausedAfterPoint) {
+                isPausedAfterPoint =false;
                 isPlayer1scored=false;isPlayer2scored=false;
                 //do poprawy w ondraw()? zrobione bo tekst znika po kliknieciu i zdobyciu pkt todo
                 if(C.currentGame==1) gameInfoText = "Naciśnij kiedy pojawi się bialy kolor";
-                if(C.currentGame==2) gameInfoText = "Naciśnij kiedy słowo ma poprawny kolor";
-                if(C.currentGame==3) gameInfoText = "Naciśnij kiedy kraj i stolica pasuja do siebie";
+                else if(C.currentGame==2) gameInfoText = "Naciśnij kiedy słowo ma poprawny kolor";
+                else if(C.currentGame==3) gameInfoText = "Naciśnij kiedy kraj i stolica pasuja do siebie";
                 else gameInfoText = "";
             }
             if(C.GAMESTATE==1) {
@@ -321,7 +318,7 @@ public class GameLoop extends View implements View.OnTouchListener {
                                 gameInfoText = "Gracz 1 stracił punkt! Stuknij, aby przejść dalej.";
                             }
                             endLevel();
-                            C.PAUSE = true;
+                            isPausedAfterPoint = true;
                         }
 
                         if (y < screenh / 3) {
@@ -336,26 +333,21 @@ public class GameLoop extends View implements View.OnTouchListener {
                             }
                             islevelended = true;
                             endLevel();
-                            C.PAUSE = true;
+                            isPausedAfterPoint = true;
+                        }
+                        if(y > screenh / 3 && y < screenh / 3 * 2) {
+                            if(C.PAUSE==true) C.PAUSE=false;
+                            else C.PAUSE=true;
                         }
                     }
 
             }
-            //menu
-//            if(C.GAMESTATE==0) {
-//                if (x > playButtonX && x < playButtonX + playButtonW && y > playButtonY - playButtonH && y < playButtonY) {
-//                    C.GAMESTATE=1;
-//                }
-//                if (x > quitButtonX && x < quitButtonX + playButtonW && y > quitButtonY - playButtonH && y < quitButtonY) {
-//                    System.exit(0);
-//                }
-//            }
+
             //end game/summary
             if(C.GAMESTATE==111 || C.GAMESTATE==222|| C.GAMESTATE==333) {
                     C.GAMESTATE=0;C.player1Wins=0;C.player2Wins=0; resetVariables();
                 Activity activity = (Activity)getContext();
                 activity.finish();
-
             }
         }
 
@@ -444,13 +436,13 @@ public class GameLoop extends View implements View.OnTouchListener {
         paintText.setColor(Color.WHITE);
         // P1
         paintText.setTextSize(80);
-        canvas.drawText(text, game_start_delay-400, screenh / 3 * 2 - 250, paintText);
+        canvas.drawText(text, animationFrame*9-400, screenh / 3 * 2 - 250, paintText);
         // P2 (obrocony)
         paintText.setTextSize(80);
         // obrocenie tekstu o 180 stopni z wpolrzednymi srodka obrotu xy(srodek ekranu)
         canvas.save();
         canvas.rotate(180, screenw/2, screenh/2);
-        canvas.drawText(text, game_start_delay-400, screenh / 3 * 2 - 250, paintText);
+        canvas.drawText(text, animationFrame*9-400, screenh / 3 * 2 - 250, paintText);
         canvas.restore();
     }
     protected void drawPlayerLabel(Canvas canvas) {
@@ -466,6 +458,21 @@ public class GameLoop extends View implements View.OnTouchListener {
         canvas.save();
         canvas.rotate(180, screenw/2, screenh/2);
         canvas.drawText("Player 2",screenw/2-120,screenh-50,paintText);
+        canvas.restore();
+    }
+    protected void drawPauseLabel(Canvas canvas) {
+        // Rysowanie napisu o pauzie
+        Paint paintText = new Paint();
+        paintText.setColor(Color.WHITE);
+        // P1
+        paintText.setTextSize(80);
+        canvas.drawText("PAUZA",screenw/2-120,screenh-250,paintText);
+        // P2 (obrocony)
+        paintText.setTextSize(80);
+        // obrocenie tekstu o 180 stopni z wpolrzednymi srodka obrotu xy(srodek ekranu)
+        canvas.save();
+        canvas.rotate(180, screenw/2, screenh/2);
+        canvas.drawText("PAUZA",screenw/2-120,screenh-250,paintText);
         canvas.restore();
     }
     protected void drawLevel_WhiteHit(Canvas canvas) {
@@ -526,7 +533,7 @@ public class GameLoop extends View implements View.OnTouchListener {
         white_col_start_delay=0;
         white_col_timer=0;
         islevelcreated=false;
-        roundNumber =0;
+        isFirstRound =true;
         colorMatch_currentColor=0;
         colorMatch_currentColorName=0;
         countriesCities_currentCountry =0;
@@ -538,6 +545,11 @@ public class GameLoop extends View implements View.OnTouchListener {
         isPlayer2scored=false;
         isPlayer1scored=false;
     }
+
+    public static void stopThread() {
+
+    }
+
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {

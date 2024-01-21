@@ -3,12 +3,14 @@ package pl.MeHow2k.a2playerreact;
 import android.graphics.Color;
 
 public class C {
+    public static int Localization=0; //0- ENG, 1- PL
     public static int GAMESTATE=0;
     public static int player1Wins=0;
     public static int player2Wins=0;
-    public static int requiredWins=9;
-    public static int currentGame=2;
-    public static boolean PAUSE=false;
+    public static int requiredRounds =9;
+    public static int currentGame=1;
+    public static boolean PAUSE =false;
+    public static boolean isGame1On=true,isGame2On=true,isGame3On=true;
     static String[] colorsNames={"CZERWONY","NIEBIESKI","ŻÓŁTY","ZIELONY","SZARY", "BIAŁY" };
     static int[] colorsInts={Color.RED,Color.BLUE,Color.YELLOW,Color.GREEN,Color.GRAY,Color.WHITE};
 
@@ -23,9 +25,8 @@ public class C {
         GAMESTATE=0;
         player1Wins=0;
         player2Wins=0;
-        requiredWins=9;
         currentGame=2;
-        PAUSE=false;
+        PAUSE =false;
     }
 
 }
