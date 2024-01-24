@@ -89,10 +89,8 @@ public class MenuActivity extends AppCompatActivity {
 
 /*do zrobienia
 
-wycentrowanie stringów
-implementacja pauzy
 lokalizacja????
 timer dla gry Biały Kolor
 napis ready? GO! --> może
-
+pasek czasu do zmiany par dla gier??
 */

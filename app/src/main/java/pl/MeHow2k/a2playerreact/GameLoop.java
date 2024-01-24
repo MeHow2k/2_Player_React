@@ -565,7 +565,6 @@ public class GameLoop extends View implements View.OnTouchListener {
         // Obliczenia dotyczące szerokości tekstu
         Rect bounds = new Rect();
         paint.getTextBounds(text, 0, text.length(), bounds);
-        float textWidth = bounds.width();
 
         // Wyrysowanie tekstu w środku ekranu
         float x = screenw / 2f;
