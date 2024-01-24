@@ -7,6 +7,7 @@ import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -64,6 +65,15 @@ public class GameLoop extends View implements View.OnTouchListener {
                     lastTime = nowTime;
 
                     if (C.GAMESTATE==1 && (!isPausedAfterPoint) ) {//ingame
+
+                        do {
+                            try {
+                                Thread.sleep(10);
+                            } catch (InterruptedException e) {
+                                return;
+                            }
+                        }while(C.PAUSE || isPausedAfterPoint);
+
                         //sprawdzenie czy ktos wygrał
                         if(C.requiredRounds ==roundspassed) {
                             if (C.player1Wins > C.player2Wins) {
@@ -169,8 +179,8 @@ public class GameLoop extends View implements View.OnTouchListener {
                         invalidate();
                         delta--;
                         frames++;
-                        Log.i("",""+ white_col_start_delay+" pause:"+ C.PAUSE);
-                        if(!isPausedAfterPoint || C.PAUSE){
+                        Log.i("","lvl"+ C.currentGame+" pause:"+ C.PAUSE+" "+C.GAMESTATE);
+                       // if(!isPausedAfterPoint ){
                             round_start_delay++;
                             game_start_delay++;
                             animationFrame++;
@@ -178,7 +188,7 @@ public class GameLoop extends View implements View.OnTouchListener {
                             if(white_col_start_delay<0){
                                 white_col_timer++;
                             }else white_col_start_delay--;
-                        }
+                        //}
                     }
                     if (System.currentTimeMillis() - timer > 1000) { //co 1 s sprawdza liczbe narysowanych klatek
                         timer += 1000;
@@ -203,7 +213,7 @@ public class GameLoop extends View implements View.OnTouchListener {
             if(C.currentGame==1) {
                 if (white_col_start_delay <= 0) {
 
-                        if(canClick|| isPausedAfterPoint)drawLevel_WhiteHit(canvas);
+                        if(canClick || isPausedAfterPoint)drawLevel_WhiteHit(canvas);
                     //int-timer test
                     //if (islevelended && roundNumber != 0)
                         //drawGameInfo(String.valueOf(white_col_timer), canvas);
@@ -334,17 +344,16 @@ public class GameLoop extends View implements View.OnTouchListener {
                             endLevel();
                             isPausedAfterPoint = true;
                         }
-                        if(y > screenh / 3 && y < screenh / 3 * 2) {
-                            if(C.PAUSE==true) C.PAUSE=false;
-                            else C.PAUSE=true;
-                        }
                     }
-
+                if(y > screenh / 3 && y < screenh / 3 * 2) {
+                    if(C.PAUSE==true) C.PAUSE=false;
+                    else C.PAUSE=true;
+                }
             }
 
             //end game/summary
             if(C.GAMESTATE==111 || C.GAMESTATE==222|| C.GAMESTATE==333) {
-                    C.GAMESTATE=0;C.player1Wins=0;C.player2Wins=0; resetVariables();
+                   // C.GAMESTATE=1;C.player1Wins=0;C.player2Wins=0; resetVariables();
                 Activity activity = (Activity)getContext();
                 activity.finish();
             }
@@ -485,13 +494,14 @@ public class GameLoop extends View implements View.OnTouchListener {
         paintText.setColor(colorInt);
         // P1
         paintText.setTextSize(80);
-        canvas.drawText(colorName,screenw/2-120,screenh / 3 * 2 - 250,paintText);
+        //canvas.drawText(colorName,screenw/2-120,screenh / 3 * 2 - 250,paintText);
+        drawCenteredText(colorName,canvas,paintText,screenh / 3 * 2 - 250);
         // P2 (obrocony)
         paintText.setTextSize(80);
         // obrocenie tekstu o 180 stopni z wpolrzednymi srodka obrotu xy(srodek ekranu)
         canvas.save();
         canvas.rotate(180, screenw/2, screenh/2);
-        canvas.drawText(colorName,screenw/2-120,screenh / 3 * 2 - 250,paintText);
+        drawCenteredText(colorName,canvas,paintText,screenh / 3 * 2 - 250);
         canvas.restore();
     }
     protected void drawLevel_CountriesCities(String country,String city,Canvas canvas) {
@@ -499,15 +509,17 @@ public class GameLoop extends View implements View.OnTouchListener {
         paintText.setColor(Color.WHITE);
         // P1
         paintText.setTextSize(80);
-        canvas.drawText(country,screenw/2-120,screenh / 3 * 2 - 250,paintText);
-        canvas.drawText(city,screenw/2-120,screenh / 3 * 2 - 250+100,paintText);
+        //canvas.drawText(country,screenw/2-120,screenh / 3 * 2 - 250,paintText);
+        //canvas.drawText(city,screenw/2-120,screenh / 3 * 2 - 250+100,paintText);
+        drawCenteredText(country,canvas,paintText,screenh / 3 * 2 - 280);
+        drawCenteredText(city,canvas,paintText,screenh / 3 * 2 - 250+100);
         // P2 (obrocony)
         paintText.setTextSize(80);
         // obrocenie tekstu o 180 stopni z wpolrzednymi srodka obrotu xy(srodek ekranu)
         canvas.save();
         canvas.rotate(180, screenw/2, screenh/2);
-        canvas.drawText(country,screenw/2-120,screenh / 3 * 2 - 250,paintText);
-        canvas.drawText(city,screenw/2-120,screenh / 3 * 2 - 250+100,paintText);
+        drawCenteredText(country,canvas,paintText,screenh / 3 * 2 - 280);
+        drawCenteredText(city,canvas,paintText,screenh / 3 * 2 - 250+100);
         canvas.restore();
     }
 
@@ -545,8 +557,19 @@ public class GameLoop extends View implements View.OnTouchListener {
         isPlayer1scored=false;
     }
 
-    public static void stopThread() {
+    protected void drawCenteredText(String text, Canvas canvas, Paint paint, float y) {
+        // Ustawienie paint dla tekstu
+        paint.setTextSize(100);
+        paint.setTextAlign(Paint.Align.CENTER);
 
+        // Obliczenia dotyczące szerokości tekstu
+        Rect bounds = new Rect();
+        paint.getTextBounds(text, 0, text.length(), bounds);
+        float textWidth = bounds.width();
+
+        // Wyrysowanie tekstu w środku ekranu
+        float x = screenw / 2f;
+        canvas.drawText(text, x, y + bounds.height() / 2f, paint);
     }
 
 

@@ -4,7 +4,7 @@ import android.graphics.Color;
 
 public class C {
     public static int Localization=0; //0- ENG, 1- PL
-    public static int GAMESTATE=0;
+    public static int GAMESTATE=1;
     public static int player1Wins=0;
     public static int player2Wins=0;
     public static int requiredRounds =9;
@@ -22,7 +22,7 @@ public class C {
             "Meksyk", "Ankara", "Ateny", "Buenos Aires", "Kijów","Mińsk","Wilno","Ryga","Oslo"};
 
     public static void resetToDefaults(){
-        GAMESTATE=0;
+        GAMESTATE=1;
         player1Wins=0;
         player2Wins=0;
         currentGame=2;
