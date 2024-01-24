@@ -6,11 +6,12 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 
 public class GameLoopActivity extends AppCompatActivity {
+    GameLoop gameLoop;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(new GameLoop(this));
+        setContentView(gameLoop= new GameLoop(this));
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
     }
@@ -18,5 +19,6 @@ public class GameLoopActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        gameLoop.getGameThread().interrupt();
     }
 }

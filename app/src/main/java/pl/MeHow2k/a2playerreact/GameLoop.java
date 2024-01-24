@@ -163,7 +163,7 @@ public class GameLoop extends View implements View.OnTouchListener {
                         try {
                             Thread.sleep(1);
                         } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
+                            return; //?
                         }
                     if (delta >= 1) {
                         invalidate();
@@ -565,4 +565,7 @@ public class GameLoop extends View implements View.OnTouchListener {
         return Resources.getSystem().getDisplayMetrics().heightPixels;
     }
 
+    public Thread getGameThread() {
+        return gameThread;
+    }
 }

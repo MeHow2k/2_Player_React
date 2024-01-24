@@ -93,6 +93,6 @@ wycentrowanie stringów
 implementacja pauzy
 lokalizacja????
 timer dla gry Biały Kolor
-
+napis ready? GO! --> może
 
 */
