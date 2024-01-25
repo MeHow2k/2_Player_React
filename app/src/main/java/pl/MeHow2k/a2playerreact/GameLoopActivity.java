@@ -20,5 +20,6 @@ public class GameLoopActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         gameLoop.getGameThread().interrupt();
+        gameLoop.getGameTimerThread().interrupt();
     }
 }

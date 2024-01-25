@@ -91,6 +91,6 @@ public class MenuActivity extends AppCompatActivity {
 
 lokalizacja????
 timer dla gry Biały Kolor
-napis ready? GO! --> może
 pasek czasu do zmiany par dla gier??
+po zdobyciu punktu gametext sie zmienia (coś z ispause afterpoint) pzy zmianie lvl'a
 */
