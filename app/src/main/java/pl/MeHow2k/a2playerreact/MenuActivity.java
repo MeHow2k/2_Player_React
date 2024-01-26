@@ -12,7 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
-
+//aktywność menu
 public class MenuActivity extends AppCompatActivity {
     Button buttonPlay,buttonSettings,buttonQuit;
     ImageButton buttonPL,buttonENG,buttonInfo,buttonGitHub;
@@ -28,11 +28,12 @@ public class MenuActivity extends AppCompatActivity {
         buttonENG= findViewById(R.id.buttonENG);
         buttonPL= findViewById(R.id.buttonPL);
         buttonGitHub=findViewById(R.id.buttonGit);
-        loadSettings();
+        loadSettings();//wczytanie ustawień
 
         buttonGitHub.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //otwiera przegladarke i stronę www
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/MeHow2k/2_Player_React"));
                 startActivity(intent);
             }
@@ -51,6 +52,7 @@ public class MenuActivity extends AppCompatActivity {
                 updateLocalization();
             }
         });
+        //otwiera aktywność z informacjami
         buttonInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -58,6 +60,7 @@ public class MenuActivity extends AppCompatActivity {
                 startActivity(intentSettings);
             }
         });
+        //otwiera aktywność z grą
         buttonPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -67,7 +70,7 @@ public class MenuActivity extends AppCompatActivity {
                 C.GAMESTATE=1;
             }
         });
-
+        //otwiera aktywność z ustawieniami
         buttonSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -75,6 +78,7 @@ public class MenuActivity extends AppCompatActivity {
                 startActivity(intentSettings);
             }
         });
+        //wyjście z aplikacji
         buttonQuit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -85,16 +89,13 @@ public class MenuActivity extends AppCompatActivity {
 
     private void updateLocalization() {
         if(C.Localization==1){
-            //zmien stringi na POL
             Toast toast = Toast.makeText(getApplicationContext(),"PL" , Toast.LENGTH_SHORT); toast.show();
-
         }
         else{
             Toast toast = Toast.makeText(getApplicationContext(),"ENG" , Toast.LENGTH_SHORT); toast.show();
-
         }
     }
-
+    //wczytanie ustawień z sharedpreferences
     private void loadSettings() {
         SharedPreferences sharedPreferences = getSharedPreferences("SETTINGS", Context.MODE_PRIVATE);
         C.requiredRounds=sharedPreferences.getInt("KEY_REQUIREDROUNDS",9);
@@ -103,7 +104,3 @@ public class MenuActivity extends AppCompatActivity {
         C.isGame3On=sharedPreferences.getBoolean("KEY_IS_GAME3_ON",true);
     }
 }
-
-/*do zrobienia
-
-*/

@@ -20,6 +20,7 @@ public class InfoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_info);
         buttonBack=findViewById(R.id.buttonBACK);
         buttonGitHub=findViewById(R.id.buttonGit);
+        //otworzenie strony www
         buttonGitHub.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -27,6 +28,7 @@ public class InfoActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        //zakończenie aktywności
         buttonBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

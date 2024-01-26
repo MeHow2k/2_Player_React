@@ -1,6 +1,6 @@
 package pl.MeHow2k.a2playerreact;
 
-import android.util.Log;
+//timer odmierzający czas w grze Biały kolor
 
 public class Timer extends Thread {
     private long startTime;
@@ -11,22 +11,22 @@ public class Timer extends Thread {
 
     public Timer() {
     }
-
+    //reset timera
     public void reset() {
         milis = 0;
         seconds = 0;
         isStarted=false;
         isStopped = true;
     }
-
+    //zatrzymanie zliczania czasu
     public void stopTimer() {
         isStopped = true;
     }
-
+    //ustawienie czasu względem którego prowadzimy pomiar i zliczanie czasu
     public void startTimer() {
         isStopped = false;
         if (!isStarted) {
-            startTime = System.currentTimeMillis(); // Zapisz czas startu
+            startTime = System.currentTimeMillis(); //czas startu
             isStarted = true;
         }
     }
@@ -38,7 +38,7 @@ public class Timer extends Thread {
     public int getSeconds() {
         return seconds;
     }
-
+    //zwraca informację o czasie, jaki ubiegł od startTime
     public String info() {
         return String.format("%d,%02d s", seconds, milis);
     }
@@ -49,18 +49,12 @@ public class Timer extends Thread {
             if (!C.PAUSE){
                     if (!isStopped) {
                         long currentTime = System.currentTimeMillis();
-                        long elapsedTime = currentTime - startTime; // Oblicz czas, który minął od startu
-
+                        long elapsedTime = currentTime - startTime; // oblicz czas, który minął od startu
                         // Konwersja czasu na sekundy i milisekundy
                         seconds = (int) (elapsedTime / 1000);
                         milis = (int) (elapsedTime % 1000);
-
                     }
                 }
-            else {
-
-            }
-                //Log.i("timer",info());
                 try {
                     Thread.sleep(1);
                 } catch (InterruptedException e) {

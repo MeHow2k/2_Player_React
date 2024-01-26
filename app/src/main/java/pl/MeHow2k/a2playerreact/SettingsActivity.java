@@ -34,47 +34,48 @@ public class SettingsActivity extends AppCompatActivity {
         switchGame2 = findViewById(R.id.switchGame2);
         switchGame3 = findViewById(R.id.switchGame3);
         seekBar = findViewById(R.id.seekBar1);
+        //ustawienie kontrolek względem aktualnych ustawień
         textWins.setText(String.valueOf(C.requiredRounds));
         seekBar.setProgress(C.requiredRounds);
         if(C.isGame1On) {switchGame1.setChecked(true);} else {switchGame1.setChecked(false);uncheckedGames++;}
         if(C.isGame2On) {switchGame2.setChecked(true);} else {switchGame2.setChecked(false);uncheckedGames++;}
         if(C.isGame3On) {switchGame3.setChecked(true);} else {switchGame3.setChecked(false);uncheckedGames++;}
+        //obsługa suwaka zmieniającego liczbę rund do zakończenia gry
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                seekBarVal=progress;
-                textWins.setText(String.valueOf(progress));
+                seekBarVal=progress;//zapisanie do zmiennej
+                textWins.setText(String.valueOf(progress));//aktualizacja wyświetlanej wartości
             }
-
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {}
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {}
         });
-        //wyłączanie gier
+        //wyłączanie gier za pomocą Switch'y
         switchGame1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
-                if (isChecked) {
+                if (isChecked) {//włącz grę jeśli switch włączony
                     C.isGame1On = true;
                     uncheckedGames--;
-                } else {
+                } else {//wyłącz grę jeśli wyłączony
                     C.isGame1On = false;
                     uncheckedGames++;
                 }
-                if(uncheckedGames==3) {
+                if(uncheckedGames==3) {//jeśli mo to być 3cia wyłączona gra, zaniechaj temu i wyświetl komunikat
                     switchGame1.setChecked(true);
                     C.isGame1On = true;
                     uncheckedGames--;
                     Toast toast = Toast.makeText(getApplicationContext(),"Minimum 1 gra musi być włączona!"
                             , Toast.LENGTH_SHORT); toast.show();
                 }
-                Log.i("","1"+C.isGame1On+" 2"+C.isGame2On+" 3"+C.isGame3On+" u"+uncheckedGames);
             }
         });
+        //reszta tak jak wyżej
         switchGame2.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -92,7 +93,6 @@ public class SettingsActivity extends AppCompatActivity {
                     Toast toast = Toast.makeText(getApplicationContext(),"Minimum 1 gra musi być włączona!"
                             , Toast.LENGTH_SHORT); toast.show();
                 }
-                Log.i("","1"+C.isGame1On+" 2"+C.isGame2On+" 3"+C.isGame3On+" u"+uncheckedGames);
             }
         });
         switchGame3.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -112,25 +112,29 @@ public class SettingsActivity extends AppCompatActivity {
                     Toast toast = Toast.makeText(getApplicationContext(),"Minimum 1 gra musi być włączona!"
                             , Toast.LENGTH_SHORT); toast.show();
                 }
-                Log.i("","1"+C.isGame1On+" 2"+C.isGame2On+" 3"+C.isGame3On+" u"+uncheckedGames);
             }
         });
+        //zapisywanie ustawień do sharedPreferences
         buttonSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //zapisz do shared prefs
+                //pobieranie wartości będących ustawieniami tj. wył. gry i liczba rund do konca gry
                 C.requiredRounds =seekBarVal;
                 SharedPreferences sharedPreferences = getSharedPreferences("SETTINGS", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor =sharedPreferences.edit();
+                //zapisanie ich pod kluczami do sharedPreferences
                 editor.putInt("KEY_REQUIREDROUNDS",seekBarVal);
                 editor.putBoolean("KEY_IS_GAME1_ON",C.isGame1On);
                 editor.putBoolean("KEY_IS_GAME2_ON",C.isGame2On);
                 editor.putBoolean("KEY_IS_GAME3_ON",C.isGame3On);
                 editor.apply();
+                //wyświetlenie komunikatu toast
                 Toast toast = Toast.makeText(getApplicationContext(),"Zapisano ustawienia" , Toast.LENGTH_SHORT); toast.show();
+                //zakończ aktywność
                 finish();
             }
         });
+        //kończy aktywność
         buttonBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
