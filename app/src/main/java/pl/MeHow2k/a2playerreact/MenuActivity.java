@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -14,7 +15,7 @@ import android.widget.Toast;
 
 public class MenuActivity extends AppCompatActivity {
     Button buttonPlay,buttonSettings,buttonQuit;
-    ImageButton buttonPL,buttonENG;
+    ImageButton buttonPL,buttonENG,buttonInfo,buttonGitHub;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,10 +24,19 @@ public class MenuActivity extends AppCompatActivity {
         buttonPlay=findViewById(R.id.buttonPLAY);
         buttonSettings=findViewById(R.id.buttonSETTINGS);
         buttonQuit=findViewById(R.id.buttonQUIT);
+        buttonInfo=findViewById(R.id.buttonInfo);
         buttonENG= findViewById(R.id.buttonENG);
         buttonPL= findViewById(R.id.buttonPL);
+        buttonGitHub=findViewById(R.id.buttonGit);
         loadSettings();
 
+        buttonGitHub.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/MeHow2k/2_Player_React"));
+                startActivity(intent);
+            }
+        });
         buttonENG.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -39,6 +49,13 @@ public class MenuActivity extends AppCompatActivity {
             public void onClick(View v) {
                 C.Localization=1;
                 updateLocalization();
+            }
+        });
+        buttonInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intentSettings = new Intent(MenuActivity.this, InfoActivity.class);
+                startActivity(intentSettings);
             }
         });
         buttonPlay.setOnClickListener(new View.OnClickListener() {
@@ -89,8 +106,4 @@ public class MenuActivity extends AppCompatActivity {
 
 /*do zrobienia
 
-lokalizacja????
-timer dla gry Biały Kolor
-pasek czasu do zmiany par dla gier??
-po zdobyciu punktu gametext sie zmienia (coś z ispause afterpoint) pzy zmianie lvl'a
 */

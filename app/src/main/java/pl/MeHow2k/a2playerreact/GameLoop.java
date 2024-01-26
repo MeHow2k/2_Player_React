@@ -21,7 +21,7 @@ public class GameLoop extends View implements View.OnTouchListener {
             quitButtonX=screenw/2-100,quitButtonY=screenh*3/4,
     playButtonW=200,playButtonH=100;
     int roundspassed=0;
-    int game_start_delay=0;int round_start_delay=0;int white_col_start_delay=1;int white_col_timer=0;
+    int game_start_delay=0;int round_start_delay=0;int white_col_start_delay=1;int nextQuestionDelay =0;
     int GAME_START_DELAY_VALUE=400,ROUND_START_DELAY_VALUE=180,ROUND_NEXT_QUESTION_DELAY_VALUE=180;
     boolean islevelcreated=false;
     boolean islevelended;
@@ -104,14 +104,14 @@ public class GameLoop extends View implements View.OnTouchListener {
                                     if (round_start_delay >= ROUND_START_DELAY_VALUE) {
                                         canClick = true;
                                         if (!islevelcreated) {
-                                            white_col_timer = 0;
+                                            nextQuestionDelay = 0;
                                             Random random = new Random();
                                             white_col_start_delay = random.nextInt(350) + 50;
                                             islevelcreated = true;
                                         }
                                         if (white_col_start_delay < 0) {
                                             canMakePoint = true;
-                                            white_col_timer++;
+                                            nextQuestionDelay++;
                                             if(timerResetRequest) {
                                                 gameTimer.reset();
                                                 timerResetRequest =false;
@@ -125,7 +125,7 @@ public class GameLoop extends View implements View.OnTouchListener {
                                     if (round_start_delay >= ROUND_START_DELAY_VALUE) {
                                         canClick = true;
                                         if (!islevelcreated) {
-                                            white_col_timer = 0;
+                                            nextQuestionDelay = 0;
                                             //losowanie koloru i nazwy
                                             Random random = new Random();
                                             if (random.nextInt(100) > 20) {
@@ -140,10 +140,10 @@ public class GameLoop extends View implements View.OnTouchListener {
                                         //gdy pasuja do siebie gracz moze zdobyc pkt
                                         if (colorMatch_currentColorName == colorMatch_currentColor)
                                             canMakePoint = true;
-                                        if (white_col_timer > ROUND_NEXT_QUESTION_DELAY_VALUE) {//co jakis czas nowe zestawienie
+                                        if (nextQuestionDelay > ROUND_NEXT_QUESTION_DELAY_VALUE) {//co jakis czas nowe zestawienie
                                             islevelcreated = false;
                                             canMakePoint = false;
-                                            white_col_timer = 0;
+                                            nextQuestionDelay = 0;
                                         }
                                     }
                                 }//color match
@@ -152,7 +152,7 @@ public class GameLoop extends View implements View.OnTouchListener {
                                     if (round_start_delay >= ROUND_START_DELAY_VALUE) {
                                         canClick = true;
                                         if (!islevelcreated) {
-                                            white_col_timer = 0;
+                                            nextQuestionDelay = 0;
                                             //losowanie panstwa i miasta
                                             Random random = new Random();
                                             if (random.nextInt(100) > 20) {
@@ -167,10 +167,10 @@ public class GameLoop extends View implements View.OnTouchListener {
                                         //gdzy pasuja do siebie gracz moze zdobyc pkt
                                         if (countriesCities_currentCountry == countriesCities_currentCity)
                                             canMakePoint = true;
-                                        if (white_col_timer > ROUND_NEXT_QUESTION_DELAY_VALUE) {//co jakis czas nowe zestawienie
+                                        if (nextQuestionDelay > ROUND_NEXT_QUESTION_DELAY_VALUE) {//co jakis czas nowe zestawienie
                                             islevelcreated = false;
                                             canMakePoint = false;
-                                            white_col_timer = 0;
+                                            nextQuestionDelay = 0;
                                         }
                                     }
                                 }//panstwa miasta
@@ -186,15 +186,17 @@ public class GameLoop extends View implements View.OnTouchListener {
                         invalidate();
                         delta--;
                         frames++;
+                        if (!C.PAUSE) {
+                            if (!isPausedAfterPoint) {
+                                round_start_delay++;
+                                game_start_delay++;
+                                animationFrame++;
 
-                            round_start_delay++;
-                            game_start_delay++;
-                            animationFrame++;
-
-                            if(white_col_start_delay<0){
-                                white_col_timer++;
-                            }else white_col_start_delay--;
-
+                                if (white_col_start_delay < 0) {
+                                    nextQuestionDelay++;
+                                } else white_col_start_delay--;
+                            }
+                        }
                     }
                     if (System.currentTimeMillis() - timer > 1000) { //co 1 s sprawdza liczbe narysowanych klatek
                         timer += 1000;
@@ -227,7 +229,7 @@ public class GameLoop extends View implements View.OnTouchListener {
                 }
 
                 if (round_start_delay >= 120) {
-                    gameInfoText = "Nacisnij kiedy pojawi sie bialy kolor";
+                    gameInfoText = "Naciśnij kiedy pojawi się biały kolor";
                 }
                 if (game_start_delay < 180) {
                     drawGameTitle("Biały kolor", canvas);
@@ -240,7 +242,7 @@ public class GameLoop extends View implements View.OnTouchListener {
                         drawLevel_ColorMatch(C.colorsNames[colorMatch_currentColorName],C.colorsInts[colorMatch_currentColor],canvas);
                 }
                 if (round_start_delay >= 120) {
-                    gameInfoText = "Nacisnij kiedy słowo ma poprawny kolor";
+                    gameInfoText = "Naciśnij kiedy słowo ma poprawny kolor";
                 }
                 if (game_start_delay < 180) {
                     drawGameTitle("Dopasuj kolor", canvas);
@@ -253,13 +255,13 @@ public class GameLoop extends View implements View.OnTouchListener {
                         drawLevel_CountriesCities(C.countries[countriesCities_currentCountry],C.cities[countriesCities_currentCity],canvas);
                 }
                 if (round_start_delay >= 120) {
-                    gameInfoText = "Nacisnij kiedy kraj i stolica pasują do siebie";
+                    gameInfoText = "Naciśnij kiedy kraj i stolica pasują do siebie";
                 }
                 if (game_start_delay < 180) {
                     drawGameTitle("Państwa Miasta", canvas);
                 }
             }
-
+            if(canClick && (C.currentGame==2 || C.currentGame==3)) drawGameTimeBar(canvas);
             drawPlayerWinsInfo(canvas);
             drawPlayerLabel(canvas);
             if(C.PAUSE) drawPauseLabel(canvas);
@@ -305,11 +307,10 @@ public class GameLoop extends View implements View.OnTouchListener {
         if(action == MotionEvent.ACTION_DOWN) {
             //play button collision
 
-
             if(isPausedAfterPoint) {
                 isPausedAfterPoint =false;
                 isPlayer1scored=false;isPlayer2scored=false;
-                if(C.currentGame==1) gameInfoText = "Naciśnij kiedy pojawi się bialy kolor";
+                if(C.currentGame==1) gameInfoText = "Naciśnij kiedy pojawi się biały kolor";
                 else if(C.currentGame==2) gameInfoText = "Naciśnij kiedy słowo ma poprawny kolor";
                 else if(C.currentGame==3) gameInfoText = "Naciśnij kiedy kraj i stolica pasuja do siebie";
                 else gameInfoText = "";
@@ -475,14 +476,14 @@ public class GameLoop extends View implements View.OnTouchListener {
         paintText.setColor(Color.WHITE);
         // P1
         paintText.setTextSize(80);
-        drawCenteredText("Player 1",canvas,paintText,screenh-100);
+        drawCenteredText("Gracz 1",canvas,paintText,screenh-100);
         // P2 (obrocony)
         paintText.setTextSize(80);
         // obrocenie tekstu o 180 stopni z wpolrzednymi srodka obrotu xy(srodek ekranu)
         canvas.save();
         canvas.rotate(180, screenw/2, screenh/2);
         //canvas.drawText("Player 2",screenw/2-120,screenh-50,paintText);
-        drawCenteredText("Player 2",canvas,paintText,screenh-100);
+        drawCenteredText("Gracz 2",canvas,paintText,screenh-100);
         canvas.restore();
     }
     protected void drawPauseLabel(Canvas canvas) {
@@ -499,6 +500,21 @@ public class GameLoop extends View implements View.OnTouchListener {
         canvas.rotate(180, screenw/2, screenh/2);
         //canvas.drawText("PAUZA",screenw/2-120,screenh-250,paintText);
         drawCenteredText("PAUZA",canvas,paintText,screenh-250);
+        canvas.restore();
+    }
+    protected void drawGameTimeBar(Canvas canvas) {
+        // Rysowanie informacji nt zadania po dwoch stronach
+        Paint paintText = new Paint();
+        paintText.setColor(Color.GRAY);
+        // P1
+        paintText.setTextSize(80);
+        canvas.drawRect(30,screenh/2,50,screenh/2+ROUND_NEXT_QUESTION_DELAY_VALUE-nextQuestionDelay,paintText);
+        // P2 (obrocony)
+        paintText.setTextSize(80);
+        // obrocenie tekstu o 180 stopni z wpolrzednymi srodka obrotu x
+        canvas.save();
+        canvas.rotate(180, 40, screenh/2);
+        canvas.drawRect(30,screenh/2,50,screenh/2+ROUND_NEXT_QUESTION_DELAY_VALUE-nextQuestionDelay,paintText);
         canvas.restore();
     }
     protected void drawLevel_WhiteHit(Canvas canvas) {
@@ -578,7 +594,7 @@ public class GameLoop extends View implements View.OnTouchListener {
         white_col_start_delay=0;
         canClick=false;
         roundspassed++;
-        white_col_timer=0;
+        nextQuestionDelay =0;
 
         //zmiana gry co 3 rundy
         if(roundspassed % 3 == 0) {
@@ -590,7 +606,7 @@ public class GameLoop extends View implements View.OnTouchListener {
         game_start_delay=0;
         round_start_delay=0;
         white_col_start_delay=0;
-        white_col_timer=0;
+        nextQuestionDelay =0;
         islevelcreated=false;
         isFirstRound =true;
         colorMatch_currentColor=0;

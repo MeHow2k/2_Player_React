@@ -40,7 +40,7 @@ public class Timer extends Thread {
     }
 
     public String info() {
-        return String.format("%d:%02d s", seconds, milis);
+        return String.format("%d,%02d s", seconds, milis);
     }
 
     @Override

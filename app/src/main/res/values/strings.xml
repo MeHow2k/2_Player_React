@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">2 Player React</string>
+    <string name="menu_PLAY">PLAY</string>
+    <string name="menu_SETTINGS">SETTINGS</string>
+    <string name="menu_QUIT">QUIT</string>
+
+    <string name="settings_saveandexit">SAVE AND EXIT</string>
+    <string name="settings_back">BACK</string>
+    <string name="settings_offgames">Turn off games</string>
+    <string name="settings_roundstowin">Number of rounds to win</string>
+    <string name="settings_atleast1game">At least one game should be on!</string>
+
+    <string name="game1_name">White Color Hit</string>
+    <string name="game2_name">Match Color</string>
+    <string name="game3_name">Cities Countries</string>
+
+    <string name="appname">2 Player React</string>
 </resources>
