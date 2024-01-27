@@ -340,7 +340,7 @@ public class GameLoop extends View implements View.OnTouchListener {
                                 isPlayer2scored=true;
                                 islevelended = true;
                                 gameInfoText = "Gracz 1 stracił punkt! Stuknij, aby przejść dalej.";
-                                gameTimerSummary="";//gdy za szybko, nie wyświetlaj wyniku timera (wyświetlał by sie stary odczyt)
+                                gameTimerSummary="Za szybko!";//gdy za szybko, nie wyświetlaj wyniku timera (wyświetlał by sie stary odczyt)
                             }
                             endLevel();//wywołanie funkcji kończącej rundę
                             isPausedAfterPoint = true;//pauza po punkcie do momentu przyciśnięcia przez gracza
@@ -360,7 +360,7 @@ public class GameLoop extends View implements View.OnTouchListener {
                                 C.player2Wins--;
                                 isPlayer1scored=true;
                                 gameInfoText = "Gracz 2 stracił punkt! Stuknij, aby przejść dalej.";
-                                gameTimerSummary="";
+                                gameTimerSummary="Za szybko!";
                             }
                             islevelended = true;
                             endLevel();
