@@ -31,7 +31,7 @@ public class C {
         player2Wins=0;
         Random random= new Random();
         //losowanie początkowej gry
-        currentGame=random.nextInt(2)+1;
+        currentGame=random.nextInt(3)+1;
         PAUSE =false;
     }
 
