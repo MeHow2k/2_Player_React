@@ -66,13 +66,14 @@
         android:textSize="30sp"
         />
 
-    <ImageView
+    <ImageButton
+        android:id="@+id/buttonPANS"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_marginTop="20dp"
         android:layout_gravity="center"
-        android:src="@drawable/images"
-        ></ImageView>
+        android:src="@drawable/pans"
+        ></ImageButton>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

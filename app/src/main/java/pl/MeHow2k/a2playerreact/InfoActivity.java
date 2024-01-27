@@ -13,14 +13,23 @@ import android.widget.ImageView;
 public class InfoActivity extends AppCompatActivity {
 
     Button buttonBack;
-    ImageButton buttonGitHub;
+    ImageButton buttonGitHub,buttonPANS;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_info);
         buttonBack=findViewById(R.id.buttonBACK);
         buttonGitHub=findViewById(R.id.buttonGit);
-        //otworzenie strony www
+        buttonPANS=findViewById(R.id.buttonPANS);
+        //otworzenie strony www PANS w Krośnie
+        buttonPANS.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://pans.krosno.pl"));
+                startActivity(intent);
+            }
+        });
+        //otworzenie strony www github autora
         buttonGitHub.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

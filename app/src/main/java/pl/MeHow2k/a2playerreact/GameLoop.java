@@ -330,16 +330,17 @@ public class GameLoop extends View implements View.OnTouchListener {
                                 islevelended = true;
                                 isPlayer1scored=true;
                                 gameInfoText = "Gracz 1 zdobył punkt! Stuknij, aby przejść dalej.";
+                                if(C.currentGame==1) {//zczytaj wynik z timera w grze 1
+                                    gameTimer.stopTimer();
+                                    gameTimerSummary=gameTimer.info();
+                                    timerResetRequest =true;
+                                }
                             } else {//jesli nie można zdobyć pkt odejmij punkt
                                 C.player1Wins--;
                                 isPlayer2scored=true;
                                 islevelended = true;
                                 gameInfoText = "Gracz 1 stracił punkt! Stuknij, aby przejść dalej.";
-                            }
-                            if(C.currentGame==1) {//zczytaj wynik z timera w grze 1
-                                gameTimer.stopTimer();
-                                gameTimerSummary=gameTimer.info();
-                                timerResetRequest =true;
+                                gameTimerSummary="";//gdy za szybko, nie wyświetlaj wyniku timera (wyświetlał by sie stary odczyt)
                             }
                             endLevel();//wywołanie funkcji kończącej rundę
                             isPausedAfterPoint = true;//pauza po punkcie do momentu przyciśnięcia przez gracza
@@ -350,17 +351,18 @@ public class GameLoop extends View implements View.OnTouchListener {
                                 C.player2Wins++;
                                 isPlayer2scored=true;
                                 gameInfoText = "Gracz 2 zdobył punkt! Stuknij, aby przejść dalej.";
+                                if(C.currentGame==1) {
+                                    gameTimer.stopTimer();
+                                    gameTimerSummary=gameTimer.info();
+                                    timerResetRequest =true;
+                                }
                             } else {
                                 C.player2Wins--;
                                 isPlayer1scored=true;
                                 gameInfoText = "Gracz 2 stracił punkt! Stuknij, aby przejść dalej.";
+                                gameTimerSummary="";
                             }
                             islevelended = true;
-                            if(C.currentGame==1) {
-                                gameTimer.stopTimer();
-                                gameTimerSummary=gameTimer.info();
-                                timerResetRequest =true;
-                            }
                             endLevel();
                             isPausedAfterPoint = true;
                         }
