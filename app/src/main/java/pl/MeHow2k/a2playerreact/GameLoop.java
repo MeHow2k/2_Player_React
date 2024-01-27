@@ -8,6 +8,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -20,8 +21,9 @@ public class GameLoop extends View implements View.OnTouchListener {
     int roundspassed=0;//liczba rozegranych rund
     //opoźnienia
     int game_start_delay=0;int round_start_delay=0;int white_col_start_delay=1;int nextQuestionDelay =0;
+    int after_point_delay=0;
     //wartości opóźnień
-    int GAME_START_DELAY_VALUE=400,ROUND_START_DELAY_VALUE=180,ROUND_NEXT_QUESTION_DELAY_VALUE=180;
+    int GAME_START_DELAY_VALUE=400,ROUND_START_DELAY_VALUE=180,ROUND_NEXT_QUESTION_DELAY_VALUE=180,AFTER_POINT_DELAY_VALUE=80;
     //flagi
     boolean islevelcreated=false;
     boolean islevelended;
@@ -78,7 +80,7 @@ public class GameLoop extends View implements View.OnTouchListener {
                             } catch (InterruptedException e) {
                                 return;
                             }
-                        }while(C.PAUSE || isPausedAfterPoint);
+                        }while(C.PAUSE);
 
                         //sprawdzenie czy ktos wygrał
                         if(C.requiredRounds ==roundspassed) {
@@ -91,7 +93,7 @@ public class GameLoop extends View implements View.OnTouchListener {
                             }else C.GAMESTATE = 333;//draw
                         }
                         //zmiana gry
-                        if(nextLevelRequest) {
+                        if(nextLevelRequest && !isPausedAfterPoint) {
                             animationFrame=0;
                             game_start_delay=0;
                             isFirstRound =true;
@@ -191,7 +193,10 @@ public class GameLoop extends View implements View.OnTouchListener {
                         invalidate();//odśwież ekran
                         delta--;
                         frames++;//dodaj klatke do licznika
+
+                        Log.i("ddd",after_point_delay+" "+isPausedAfterPoint);
                         if (!C.PAUSE) {//gdy nie ma pauzy
+                            after_point_delay++;
                             if (!isPausedAfterPoint) {
                                 //opóźnienia realizowane co klatkę
                                 round_start_delay++;
@@ -314,7 +319,7 @@ public class GameLoop extends View implements View.OnTouchListener {
         final int action = event.getAction();
         if(action == MotionEvent.ACTION_DOWN) {//gdy jest dotyk->
             //gdy jest pauza po punkcie:
-            if(isPausedAfterPoint) {
+            if(isPausedAfterPoint && after_point_delay>AFTER_POINT_DELAY_VALUE) {
                 isPausedAfterPoint =false;//wyłącz pauzę
                 isPlayer1scored=false;isPlayer2scored=false;//usuń info kto dostał punkt i przywróć opis gry
                 if(C.currentGame==1) gameInfoText = "Naciśnij kiedy pojawi się biały kolor";
@@ -323,7 +328,7 @@ public class GameLoop extends View implements View.OnTouchListener {
                 else gameInfoText = "";
             }
             if(C.GAMESTATE==1) {
-                    if (canClick) {//gdzy można przycisnąć przycisk przez gracza:
+                    if (canClick) {//gdy można przycisnąć przycisk przez gracza:
                         if (y > screenh / 3 * 2 && y > 0) {//dla przycisku gracza 1
                             if (canMakePoint) {//jesli można zdobyć pkt dodaj punkt
                                 C.player1Wins++;
@@ -340,10 +345,12 @@ public class GameLoop extends View implements View.OnTouchListener {
                                 isPlayer2scored=true;
                                 islevelended = true;
                                 gameInfoText = "Gracz 1 stracił punkt! Stuknij, aby przejść dalej.";
-                                gameTimerSummary="Za szybko!";//gdy za szybko, nie wyświetlaj wyniku timera (wyświetlał by sie stary odczyt)
+                                if(C.currentGame==1)gameTimerSummary="Za szybko!";//gdy za szybko, nie wyświetlaj wyniku timera (wyświetlał by sie stary odczyt)
+                                else gameTimerSummary="";
                             }
                             endLevel();//wywołanie funkcji kończącej rundę
                             isPausedAfterPoint = true;//pauza po punkcie do momentu przyciśnięcia przez gracza
+                            after_point_delay=0;
                         }
 
                         if (y < screenh / 3) {//dla przycisku gracza 2 identycznie
@@ -365,6 +372,7 @@ public class GameLoop extends View implements View.OnTouchListener {
                             islevelended = true;
                             endLevel();
                             isPausedAfterPoint = true;
+                            after_point_delay=0;
                         }
                     }
                 if(y > screenh / 3 && y < screenh / 3 * 2) {
@@ -627,6 +635,7 @@ public class GameLoop extends View implements View.OnTouchListener {
         gameInfoText="";
         isPlayer2scored=false;
         isPlayer1scored=false;
+        after_point_delay=0;
     }
 
     protected void drawCenteredText(String text, Canvas canvas, Paint paint, float y) {
