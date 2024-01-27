@@ -429,7 +429,7 @@ public class GameLoop extends View implements View.OnTouchListener {
         //dynamicznie zmieniajace sie kolory
         paintText.setColor(Color.rgb(random.nextInt(255),random.nextInt(255),random.nextInt(255)));
         String winmessage;
-        if(C.GAMESTATE==111) winmessage="Player 1 won!";else if(C.GAMESTATE==222) winmessage="Player 2 won!";else winmessage="Draw!";
+        if(C.GAMESTATE==111) winmessage="Gracz 1 wygrywa!";else if(C.GAMESTATE==222) winmessage="Gracz 2 Wygrywa!";else winmessage="Remis!";
         // P1
         paintText.setTextSize(100);
         drawCenteredText(winmessage,canvas,paintText,screenh / 3 * 2 + 200);
